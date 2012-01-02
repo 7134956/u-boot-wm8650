@@ -57,7 +57,7 @@ ifeq ($(ARCH),ppc)
 CROSS_COMPILE = powerpc-linux-
 endif
 ifeq ($(ARCH),arm)
-CROSS_COMPILE = arm_v5t_le-
+CROSS_COMPILE = arm-none-linux-gnueabi-
 endif
 ifeq ($(ARCH),i386)
 ifeq ($(HOSTARCH),i386)
@@ -111,7 +111,7 @@ ifdef SOC
 LIBS += cpu/$(CPU)/$(SOC)/lib$(SOC).a
 endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
-LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a fs/mem/libmemblock.a\
+LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a\
 	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a

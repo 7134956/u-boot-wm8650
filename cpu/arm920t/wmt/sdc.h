@@ -337,7 +337,7 @@ struct _SD_PDMA_DESC_S{
 	unsigned long volatile format:1;		/* bit 30    -The descriptor format     */
 	unsigned long volatile end:1;			/* bit 31    -End flag of descriptor list*/
 	unsigned long volatile *DataBufferAddr;	/* bit 31    -Data Buffer address       */
-} SD_PDMA_DESC_S, *PSD_PDMA_DESC_S;
+};//__attribute__((packed)); /*mvl tool chain can't uas __attribute__((packed))*/
 
 /*
  *	PDMA Descriptor long
@@ -351,7 +351,7 @@ struct _SD_PDMA_DESC_L{
 	unsigned long volatile *DataBufferAddr;	/* bit 31-0  -Data Buffer address       */
 	unsigned long volatile *BranchAddr;		/* bit 31-2  -Descriptor Branch address	*/
 	unsigned long volatile reserve0;		/* bit 31-0  -reserved					*/
-} SD_PDMA_DESC_L, *PSD_PDMA_DESC_L;
+};//__attribute__((packed)); 
 
 //SD card related information
 typedef struct sd_info_s {

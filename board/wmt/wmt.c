@@ -72,3 +72,8 @@ int dram_init(void)
 	return 0;
 }
 
+/* Dummy function to avoid linker complaints */
+void __aeabi_unwind_cpp_pr0(void)
+{
+}
+

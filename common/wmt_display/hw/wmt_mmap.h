@@ -98,7 +98,7 @@
 #define VPP_BASE_ADDR     						0xD8050F00  /* 256 , 8/16/32 RW */ // WM8425
 /* Reserved for VPP                             0xD8051000 - 0xD805FFFF */
 #define HDMI_TRANSMITTE_BASE_ADDR  	            0xD8060000  /* 64K , 8/16/32 RW */
-#define HDCP_BASE_ADDR  			            0xD8070000  /* 64K , 8/16/32 RW */
+#define HDMI_CP_BASE_ADDR  			            0xD8070000  /* 64K , 8/16/32 RW */
 /* Reserved                                     0xD8080000 - 0xD80E3FFF */
 #define USB2_OTG_CFG_BASE_ADDR                  0xD80E4000  /* 16K , 8/16/32 RW */
 /* Reserved                                     0xD80E8000 - 0xD80D7FFF */

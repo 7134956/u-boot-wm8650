@@ -147,7 +147,7 @@
 #ifdef __GNUC__
     #define MAKE_PACKED(X) X __attribute__((packed))
 
-#elif
+#else
    #define MAKE_PACKED(X) __packed X
    #define __FUNCTION__ __func__
 

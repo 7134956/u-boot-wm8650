@@ -230,23 +230,6 @@ typedef struct {
 /*--------------------- EXPORTED PRIVATE FUNCTIONS  ---------------------------*/
 /* extern void  hdmi_xxx(void); *//*Example*/
 
-void hdmi_init(void);
-void hdmi_reg_dump(void);
-void hdmi_audio_enable(vpp_flag_t enable);
-void hdmi_audio_mute(vpp_flag_t enable);
-void hdmi_set_enable(vpp_flag_t enable);
-void hdmi_set_dvi_enable(vpp_flag_t enable);
-void hdmi_set_DHCP_enable(vpp_flag_t enable);
-void hdmi_config(hdmi_info_t *info);
-int hdmi_DDC_read(char addr,char index,char *buf,int length);
-int hdmi_get_plugin(void);
-void hdmi_clear_plug_status(void);
-void hdmi_suspend(int sts);
-void hdmi_resume(int sts);
-void hdmi_enable_plugin(int enable);
-vdo_color_fmt hdmi_get_output_colfmt(void);
-void hdmi_set_sync_low_active(vpp_flag_t hsync,vpp_flag_t vsync);
-
 #ifdef	__cplusplus
 }
 #endif	

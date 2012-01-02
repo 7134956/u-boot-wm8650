@@ -245,7 +245,7 @@ typedef struct {
 	// vout
 	int vga_enable;
 	int hdmi_audio_interface;	// 0-I2S, 1-SPDIF
-	int hdmi_hdcp_enable;		// 0-HDCP off, 1-HDCP on
+	int hdmi_cp_enable;		// 0-off, 1-on
 
 	// govrh
 	int govrh_field;

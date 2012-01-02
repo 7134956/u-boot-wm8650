@@ -1,1 +1,1 @@
-#define	WMT_U_BOOT_VERSION	"0.11.00.00"
+#define	WMT_U_BOOT_VERSION	"0.15.00.00"

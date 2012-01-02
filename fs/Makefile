@@ -22,7 +22,7 @@
 #
 #
 
-SUBDIRS	:= mem jffs2 cramfs fdos fat reiserfs ext2 
+SUBDIRS	:= jffs2 cramfs fdos fat reiserfs ext2 
 
 .depend all:
 	@for dir in $(SUBDIRS) ; do \

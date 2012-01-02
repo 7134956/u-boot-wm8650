@@ -29,7 +29,6 @@
 #include <s_record.h>
 #include <net.h>
 #include <ata.h>
-#include "../fs/mem/mem.h"
 
 #if (CONFIG_COMMANDS & CFG_CMD_FAT)
 

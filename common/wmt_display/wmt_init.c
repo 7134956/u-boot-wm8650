@@ -166,7 +166,7 @@ int vout_init(struct fb_var_screeninfo *var)
 	memset(vout_edid,0,256);
 #endif
 	g_vpp.hdmi_audio_interface = 1;		// 0-I2S, 1-SPDIF
-	g_vpp.hdmi_hdcp_enable = 1;
+	g_vpp.hdmi_cp_enable = 1;
 	g_vpp.govw_vfp = 5;
 	g_vpp.govw_vbp = 5;
 

@@ -222,7 +222,7 @@ int sd_pdma_handler(void)
 void sdmmcSendExCSD(unsigned long *ahb_mem_data_in)
 {
 	unsigned char Resp1[4], tmp;
-	struct _SD_PDMA_DESC_S ReadDesc;
+	struct _SD_PDMA_DESC_L ReadDesc;
 	//bzero(ahb_mem_data_in, 512);
 	memset(ahb_mem_data_in, 0x0, 512);
 	pSd_Reg->blkcnt= 0x01 ;
@@ -242,7 +242,7 @@ void sdmmcSendExCSD(unsigned long *ahb_mem_data_in)
 		(unsigned long*)(&ReadDesc),
 		512,
 		ahb_mem_data_in,
-		(unsigned long *)(&ReadDesc + sizeof(SD_PDMA_DESC_L)),
+		(unsigned long *)(&ReadDesc + sizeof(struct _SD_PDMA_DESC_L)),
 		1
 	);
 	sd_config_pdma((unsigned long*)(&ReadDesc), SD_PDMA_READ);
@@ -287,7 +287,7 @@ int sdmmcSwitch(void)
 	unsigned char *SCR ;
 	unsigned char tmp ;
 	unsigned long *ahb_mem_data_in = (unsigned long *)malloc(64);
-	struct _SD_PDMA_DESC_S ReadDesc;
+	struct _SD_PDMA_DESC_L ReadDesc;
 	memset(ahb_mem_data_in, 0x0, 64);
 	//bzero(ahb_mem_data_in, 64);
 	
@@ -311,7 +311,7 @@ int sdmmcSwitch(void)
 		(unsigned long *)(&ReadDesc),
 		64,
 		ahb_mem_data_in,
-		(unsigned long *)(&ReadDesc + sizeof(SD_PDMA_DESC_L)),
+		(unsigned long *)(&ReadDesc + sizeof(struct _SD_PDMA_DESC_L)),
 		1
 	);
 	sd_config_pdma((unsigned long *)(&ReadDesc), SD_PDMA_READ);
@@ -346,7 +346,7 @@ int sdmmcSwitch(void)
 			(unsigned long *)(&ReadDesc),
 			64,
 			ahb_mem_data_in,
-			(unsigned long *)(&ReadDesc + sizeof(SD_PDMA_DESC_L)),
+			(unsigned long *)(&ReadDesc + sizeof(struct _SD_PDMA_DESC_L)),
 			1
 		);
 		sd_config_pdma((unsigned long *)(&ReadDesc), SD_PDMA_READ);
@@ -596,7 +596,7 @@ int sd_config_pdma(unsigned long *DescAddr, char dir)
 
 int SD_Init(void)
 {
-	struct _SD_PDMA_DESC_S ReadDesc;
+	struct _SD_PDMA_DESC_L ReadDesc;
 	unsigned long *ahb_mem_data_in = (unsigned long *)malloc(8);
 	unsigned char *mmc_ext_csd = (unsigned char *)malloc(512);
 	memset(ahb_mem_data_in, 0x0, 8);
@@ -946,7 +946,7 @@ int SD_Init(void)
 			(unsigned long *)&ReadDesc,
 			8,
 			ahb_mem_data_in,
-			(unsigned long *)(&ReadDesc + sizeof(SD_PDMA_DESC_L)),
+			(unsigned long *)(&ReadDesc + sizeof(struct _SD_PDMA_DESC_L)),
 			1
 		);
 		sd_config_pdma((unsigned long *)&ReadDesc, SD_PDMA_READ);

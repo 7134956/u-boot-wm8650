@@ -1226,6 +1226,10 @@ void nfc_BCH_ecc_correct(unsigned int bitcnt, unsigned int maddr)
 			g_ecc_dcnt = 0;
 	}
 #endif
+
+		if (byte_ofs >= dma_unit)
+			continue;
+
 #ifdef SHOWME_ECC
 		printf(" byte%d , bit%d \n",byte_ofs,bit_ofs);
 #endif
@@ -2490,11 +2494,15 @@ static int NanD_IdentChip(struct nand_chip *nand, int floor, int chip)
 	pNFCRegs->NFCRd = 0;
 	NAND_ENABLE_CE(nand, chip_off);  /* set pin low */
 	/*pNFCRegs->NFCR11 = ~(1 << chip_off);*/
-	pNFCRegs->NFCR12 = PAGE_2K|WIDTH_8|WP_DISABLE|DIRECT_MAP|OLDATA_EN|0x40;
-	pNFCRegs->NFCR14 &= 0xffff0000;
-	pNFCRegs->NFCR14 |= 0x3636;/* in case of margine short	 */
+	if (chip_off == 0) {
+		pNFCRegs->NFCR12 = PAGE_2K|WIDTH_8|WP_DISABLE|DIRECT_MAP|0x40;
+		pNFCRegs->NFCR14 &= 0xffff0000;
+		pNFCRegs->NFCR14 |= 0x3636;/* in case of margine short	 */
+	}
 	/* Reset the chip */
-	wmt_nand_reset();
+	rc = wmt_nand_reset();
+	if (rc)
+		return 0;
 
 #if 0 /* dannier mark open source start */
 /*************************************************************************/
@@ -3006,7 +3014,8 @@ static void NanD_ScanChips(struct nand_chip *nand)
 			if (ret) {
 				numchips[floor]++;
 				nand->numchips++;
-			}
+			} else
+				break;
 		}
 	}
 
