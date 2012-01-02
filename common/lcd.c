@@ -68,6 +68,8 @@
 # endif
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 ulong lcd_setmem (ulong addr);
 
 static void lcd_drawchars (ushort x, ushort y, uchar *str, int count);
@@ -339,8 +341,6 @@ static void test_pattern (void)
 
 int drv_lcd_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	device_t lcddev;
 	int rc;
 
@@ -682,8 +682,6 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 static void *lcd_logo (void)
 {
 #ifdef CONFIG_LCD_INFO
-	DECLARE_GLOBAL_DATA_PTR;
-
 	char info[80];
 	char temp[32];
 #endif /* CONFIG_LCD_INFO */

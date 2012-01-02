@@ -59,13 +59,15 @@
 #define NANDRW_READ		0x01
 #define NANDRW_WRITE	0x00
 #define NANDRW_JFFS2	0x02
+#define NANDRW_JFFS2_SKIP	0x04
+unsigned int env_blk_pos = 0; /*searched env block position*/
 extern struct nand_chip nand_dev_desc[];
 int nand_rw (struct nand_chip* nand, int cmd,
 	    size_t start, size_t len,
 	    size_t * retlen, u_char * buf);
 int nand_erase(struct nand_chip* nand, size_t ofs,
 				size_t len, int clean);
-
+int check_block_table(struct nand_chip *nand, unsigned int scan);
 /* references to names in env_common.c */
 extern uchar default_environment[];
 extern int default_environment_size;
@@ -84,11 +86,10 @@ env_t *env_ptr = 0;
 /* local functions */
 static void use_default(void);
 
+DECLARE_GLOBAL_DATA_PTR;
 
 uchar env_get_char_spec (int index)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	return ( *((uchar *)(gd->env_addr + index)) );
 }
 
@@ -101,9 +102,7 @@ uchar env_get_char_spec (int index)
  */
 int env_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
-  	gd->env_addr  = (ulong)&default_environment[0];
+	gd->env_addr  = (ulong)&default_environment[0];
 	gd->env_valid = 1;
 
 	return (0);
@@ -112,20 +111,70 @@ int env_init(void)
 #ifdef CMD_SAVEENV
 int saveenv(void)
 {
-	int	total, ret = 0;
- 	puts ("Erasing Nand...");
- 	if (nand_erase(nand_dev_desc + 0, CFG_ENV_OFFSET, CFG_ENV_SIZE, 0))
- 		return 1;
+	int ret = 0;
+	unsigned int total, i, index;
+	
+	NAND_ENABLE_CE(nand_dev_desc);
+	ret = check_block_table(nand_dev_desc, 0);
+	NAND_DISABLE_CE(nand_dev_desc);
+	if (ret) {
+		printf("bbt not found! Write ENV is rejected\n");
+		return 1;
+	}
 
-	puts ("Writing to Nand... ");
-	ret = nand_rw(nand_dev_desc + 0,
-				  NANDRW_WRITE | NANDRW_JFFS2, CFG_ENV_OFFSET, CFG_ENV_SIZE,
-			      &total, (u_char*)env_ptr);
-  	if (ret || total != CFG_ENV_SIZE)
+	total = CFG_ENV_SIZE;
+ 	index = (env_blk_pos+1)%CFG_ENV_BLOCK_LENGTH;
+ 	printf ("Erasing next Nand block 0x%x\n", index);
+ 	for (i = 0; i < CFG_ENV_BLOCK_LENGTH; i++) {
+		if (!nand_dev_desc[0].isbadblock((nand_dev_desc + 0),
+		nand_dev_desc[0].erasesize * (CFG_ENV_BLOCK_OFFSET + index%CFG_ENV_BLOCK_LENGTH))) {
+		 	if (nand_erase(nand_dev_desc + 0,
+		 	nand_dev_desc[0].erasesize * (CFG_ENV_BLOCK_OFFSET + index%CFG_ENV_BLOCK_LENGTH),
+		 	(CFG_ENV_SIZE/nand_dev_desc[0].erasesize) + 
+		 	((CFG_ENV_SIZE%nand_dev_desc[0].erasesize) ? nand_dev_desc[0].erasesize : 0), 0)) {
+		 		/* fixme add bad block into bbt */
+		 		puts ("Erasing Nand next block fail..");
+		 		return 1;
+			} else {
+				ret = 1;
+				break;
+		 	}
+	 	}
+	 	index++;
+	}
+	if (!ret)
 		return 1;
 
- 	puts ("done\n");
-  	return ret;
+	/*printf ("write nand env_ptr addr 0x%x\n", (unsigned int)env_ptr);*/
+	ret = nand_rw(nand_dev_desc + 0,
+				NANDRW_WRITE | NANDRW_JFFS2, nand_dev_desc[0].erasesize *
+				(CFG_ENV_BLOCK_OFFSET + index%CFG_ENV_BLOCK_LENGTH), CFG_ENV_SIZE,
+			      &total, (u_char *)env_ptr);
+	//ret = WMTSaveImageToNAND(nand_dev_desc[0].erasesize * CFG_ENV_BLOCK_OFFSET,
+	//(u_char*)env_ptr,	CFG_ENV_SIZE, 1);
+  if (ret || total != CFG_ENV_SIZE) {
+  	printf ("ret =0x%x total= 0x%x\n", (int) ret, total);
+		return 1;
+	}
+	printf ("Erase original Nand env_blk_pos=0x%x", env_blk_pos);
+	if (!nand_dev_desc[0].isbadblock((nand_dev_desc + 0),
+		nand_dev_desc[0].erasesize * (CFG_ENV_BLOCK_OFFSET + env_blk_pos))) {
+		 	if (nand_erase(nand_dev_desc + 0,
+		 	nand_dev_desc[0].erasesize * (CFG_ENV_BLOCK_OFFSET + env_blk_pos),
+		 	(CFG_ENV_SIZE/nand_dev_desc[0].erasesize) + 
+		 	((CFG_ENV_SIZE%nand_dev_desc[0].erasesize) ? nand_dev_desc[0].erasesize : 0), 0)) {
+		 		/* fixme add bad block into bbt */
+		 		puts ("Erasing Nand original block fail..");
+		 		return 1;
+			} else {
+				env_blk_pos++;
+				puts (" ...done\n");
+				return 0;
+		 	}
+	 	}
+
+ 	puts ("original nand env block is bad block\n");
+  return 1;
 }
 #endif /* CMD_SAVEENV */
 
@@ -133,24 +182,58 @@ int saveenv(void)
 void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED)
-	int ret, total;
-
-	ret = nand_rw(nand_dev_desc + 0,
-				  NANDRW_READ | NANDRW_JFFS2, CFG_ENV_OFFSET, CFG_ENV_SIZE,
-			      &total, (u_char*)env_ptr);
-  	if (ret || total != CFG_ENV_SIZE)
+	int ret = 0;
+	unsigned int total, i = 0;
+	total = 0;
+	/*env_blk_pos = 0;*/
+	/*WMTLoadImageFormNAND(nand_dev_desc + 0, 
+	nand_dev_desc[0].erasesize * CFG_ENV_BLOCK_OFFSET,
+	(u_char*)env_ptr, CFG_ENV_SIZE);*/
+	NAND_ENABLE_CE(nand_dev_desc);
+	ret = check_block_table(nand_dev_desc, 0);
+	NAND_DISABLE_CE(nand_dev_desc);
+	if (ret) {
+		printf("bbt not found! Search ENV is rejected\n");
 		return use_default();
+	}
+	for (i = 0; i < (CFG_ENV_BLOCK_LENGTH*2); i++) {
+		/*printf("i = %d\n", i);*/
+		if (nand_dev_desc[0].isbadblock((nand_dev_desc + 0),
+		nand_dev_desc[0].erasesize * (CFG_ENV_BLOCK_OFFSET + i%CFG_ENV_BLOCK_LENGTH))) {
+			printf(" search env block = 0x%x+1 is bad\n", env_blk_pos);
+			continue;
+	 	}
+		/*printf("i1 = %d\n", i);*/
+		ret = nand_rw(nand_dev_desc + 0, NANDRW_READ | NANDRW_JFFS2 | NANDRW_JFFS2_SKIP,
+					nand_dev_desc[0].erasesize * (CFG_ENV_BLOCK_OFFSET + i%CFG_ENV_BLOCK_LENGTH),
+					CFG_ENV_SIZE, &total, (u_char*)env_ptr);
+		if (ret || (total != CFG_ENV_SIZE)) {
+	  	printf ("ret =0x%x total= 0x%x\n", (int) ret, total);
+	  	env_blk_pos = 0;
+			return use_default();
+		}
+		if ((env_ptr->crc == 0xFFFFFFFF) && (i < CFG_ENV_BLOCK_LENGTH))
+			continue;
 
-	if (crc32(0, env_ptr->data, ENV_SIZE) != env_ptr->crc)
-		return use_default();
+		if (crc32(0, env_ptr->data, ENV_SIZE) != env_ptr->crc) {
+			if (i < (CFG_ENV_BLOCK_LENGTH*2 - 1))
+				continue;
+			printf("could not search env nand block\n");
+			env_blk_pos = 0;
+			return use_default();
+		} else {
+			env_blk_pos = i%CFG_ENV_BLOCK_LENGTH;
+			printf("env is read from nand block 0x%x+1 \n", env_blk_pos);
+			return;
+		}
+	}
+	return use_default();
 #endif /* ! ENV_IS_EMBEDDED */
 
 }
 
 static void use_default()
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	puts ("*** Warning - bad CRC or NAND, using default environment\n\n");
 
   	if (default_environment_size > CFG_ENV_SIZE){

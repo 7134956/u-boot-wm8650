@@ -5,20 +5,20 @@
 # See file CREDITS for list of people who contributed to this
 # project.
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
+# Some descriptions of such software. Copyright (c) 2008 WonderMedia Technologies, Inc.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-# GNU General Public License for more details.
+# This program is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software Foundation,
+# either version 2 of the License, or (at your option) any later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with
+# this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# WonderMedia Technologies, Inc.
+# 10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
 #
 
 include $(TOPDIR)/config.mk
@@ -40,12 +40,18 @@ COBJS	= main.o ACEX1K.o altera.o bedbug.o circbuf.o \
 	  cmd_nand.o cmd_net.o cmd_nvedit.o \
 	  cmd_pci.o cmd_pcmcia.o cmd_portio.o \
 	  cmd_reginfo.o cmd_reiser.o cmd_scsi.o cmd_spi.o cmd_universe.o \
-	  cmd_usb.o cmd_vfd.o \
+	  cmd_usb.o cmd_vfd.o cmd_nandrw.o\
 	  command.o console.o devices.o dlmalloc.o docecc.o \
 	  environment.o env_common.o \
 	  env_nand.o env_dataflash.o env_flash.o env_eeprom.o \
 	  env_nvram.o env_nowhere.o \
 	  exports.o \
+	  wmt_display/vpp.o wmt_display/govm.o wmt_display/govw.o wmt_display/govrh.o \
+	  wmt_display/vppm.o wmt_display/ge_regs.o wmt_display/vpp-osif.o wmt_display/wmt_cmd_display.o\
+  	  wmt_display/devices/lcd-oem.o wmt_display/devices/lcd-AUO-A080SN01.o wmt_display/devices/lcd-INNOLUX-AT070TN83.o\
+	  wmt_display/devices/lcd-CHILIN-LW700at9003.o wmt_display/devices/vt1632.o wmt_display/lcd.o wmt_display/vout-wmt.o\
+	  wmt_display/vout.o wmt_display/minivgui.o wmt_display/wmt_init.o wmt_display/env_parse.o\
+	  wmt_display/cmd_mbit.o wmt_display/cmd_textout.o\
 	  flash.o fpga.o ft_build.o \
 	  hush.o kgdb.o lcd.o lists.o lynxkdi.o \
 	  memsize.o miiphybb.o miiphyutil.o \

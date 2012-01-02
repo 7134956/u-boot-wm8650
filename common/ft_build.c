@@ -6,6 +6,8 @@
 #include <malloc.h>
 #include <environment.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_OF_FLAT_TREE
 
 #include <asm/errno.h>
@@ -577,7 +579,6 @@ static const struct {
 
 void ft_setup(void *blob, int size, bd_t * bd)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	u8 *end;
 	u32 *p;
 	int len;

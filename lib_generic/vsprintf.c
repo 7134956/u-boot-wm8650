@@ -55,7 +55,7 @@ long simple_strtol(const char *cp,char **endp,unsigned int base)
 	return simple_strtoul(cp,endp,base);
 }
 
-#ifdef CFG_64BIT_STRTOUL
+#if 1 /*def CFG_64BIT_STRTOUL*/
 unsigned long long simple_strtoull (const char *cp, char **endp, unsigned int base)
 {
 	unsigned long long result = 0, value;

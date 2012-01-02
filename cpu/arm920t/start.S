@@ -8,26 +8,24 @@
  * See file CREDITS for list of people who contributed to this
  * project.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * Copyright (c) 2008 WonderMedia Technologies, Inc.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 2 of the License, or (at your option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * WonderMedia Technologies, Inc.
+ * 10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
  */
-
 
 #include <config.h>
 #include <version.h>
-
 
 /*
  *************************************************************************
@@ -36,7 +34,6 @@
  *
  *************************************************************************
  */
-
 
 .globl _start
 _start:	b       reset
@@ -57,7 +54,6 @@ _irq:			.word irq
 _fiq:			.word fiq
 
 	.balignl 16,0xdeadbeef
-
 
 /*
  *************************************************************************
@@ -238,6 +234,7 @@ _start_armboot:	.word start_armboot
 
 
 cpu_init_crit:
+
 	/*
 	 * flush v4 I/D caches
 	 */
@@ -249,8 +246,15 @@ cpu_init_crit:
 	 * disable MMU stuff and caches
 	 */
 	mrc	p15, 0, r0, c1, c0, 0
+
+#if defined (CONFIG_WMT)
+	bic	r0, r0, #0x00000300	@ clear bits 9:8 (---- --RS)
+	bic	r0, r0, #0x0000000F	@ clear bits 3:0 (---- WCAM)
+	orr	r0, r0, #0x00002000	@ set bit 13 (--V--)
+#else
 	bic	r0, r0, #0x00002300	@ clear bits 13, 9:8 (--V- --RS)
 	bic	r0, r0, #0x00000087	@ clear bits 7, 2:0 (B--- -CAM)
+#endif
 	orr	r0, r0, #0x00000002	@ set bit 2 (A) Align
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
 	mcr	p15, 0, r0, c1, c0, 0

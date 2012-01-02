@@ -1,3 +1,20 @@
+/*++ 
+Copyright (c) 2010 WonderMedia Technologies, Inc.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software 
+Foundation, either version 2 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details. You
+should have received a copy of the GNU General Public License along with this
+program. If not, see http://www.gnu.org/licenses/>.
+
+WonderMedia Technologies, Inc.
+10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
+--*/
+
 /*
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
@@ -32,6 +49,10 @@
 #include <common.h>
 #include <command.h>
 #include <arm920t.h>
+
+#ifdef CONFIG_USE_IRQ
+DECLARE_GLOBAL_DATA_PTR;
+#endif
 
 /* read co-processor 15, register #1 (control register) */
 static unsigned long read_p15_c1 (void)
@@ -91,8 +112,6 @@ int cpu_init (void)
 	 * setup up stacks if necessary
 	 */
 #ifdef CONFIG_USE_IRQ
-	DECLARE_GLOBAL_DATA_PTR;
-
 	IRQ_STACK_START = _armboot_start - CFG_MALLOC_LEN - CFG_GBL_DATA_SIZE - 4;
 	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
 #endif

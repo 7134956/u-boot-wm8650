@@ -5,20 +5,20 @@
  * See file CREDITS for list of people who contributed to this
  * project.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * Copyright (c) 2008 WonderMedia Technologies, Inc.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
+ * This program is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 2 of the License, or (at your option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * WonderMedia Technologies, Inc.
+ * 10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
  */
 
 /*
@@ -95,9 +95,12 @@
 #define CFG_CMD_SNTP	0x2000000000000000ULL	/* SNTP support			*/
 #define CFG_CMD_DISPLAY	0x4000000000000000ULL	/* Display support		*/
 
+#define CFG_CMD_NANDRW	0x8000000000000000ULL
+
 #define CFG_CMD_ALL	0xFFFFFFFFFFFFFFFFULL	/* ALL commands			*/
 
-/* Commands that are considered "non-standard" for some reason
+/*
+ * Commands that are considered "non-standard" for some reason
  * (memory hogs, requires special hardware, not fully tested, etc.)
  */
 #define CFG_CMD_NONSTD (CFG_CMD_ASKENV	| \
@@ -142,16 +145,16 @@
 			CFG_CMD_SPI	| \
 			CFG_CMD_UNIVERSE | \
 			CFG_CMD_USB	| \
-			CFG_CMD_VFD	)
-
-/* Default configuration
+			CFG_CMD_VFD	| \
+			CFG_CMD_MMC)
+/*
+ * Default configuration
  */
 #define CONFIG_CMD_DFL	(CFG_CMD_ALL & ~CFG_CMD_NONSTD)
 
 #ifndef CONFIG_COMMANDS
 #define CONFIG_COMMANDS CONFIG_CMD_DFL
 #endif
-
 
 /*
  * optional BOOTP fields
@@ -172,7 +175,6 @@
 #define CONFIG_BOOTP_VENDOREX		0x80000000
 
 #define CONFIG_BOOTP_ALL		(~CONFIG_BOOTP_VENDOREX)
-
 
 #define CONFIG_BOOTP_DEFAULT		(CONFIG_BOOTP_SUBNETMASK | \
 					CONFIG_BOOTP_GATEWAY	 | \

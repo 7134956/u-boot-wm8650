@@ -11,6 +11,8 @@
 #include <bedbug/regs.h>
 #include <bedbug/ppc.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if (CONFIG_COMMANDS & CFG_CMD_BEDBUG)
 
 #ifndef MAX
@@ -364,8 +366,6 @@ U_BOOT_CMD(
  * ====================================================================== */
 int do_bedbug_stack (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
   unsigned long sp;             /* Stack pointer                */
   unsigned long func;           /* LR from stack                */
   int           depth;          /* Stack iteration level        */

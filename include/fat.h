@@ -1,3 +1,19 @@
+/*++ 
+Copyright (c) 2010 WonderMedia Technologies, Inc.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software 
+Foundation, either version 2 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details. You
+should have received a copy of the GNU General Public License along with this
+program. If not, see http://www.gnu.org/licenses/>.
+
+WonderMedia Technologies, Inc.
+10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
+--*/
 /*
  * R/O (V)FAT 12/16/32 filesystem implementation by Marcus Sundberg
  *
@@ -67,7 +83,7 @@
 #define ATTR_VFAT     (ATTR_RO | ATTR_HIDDEN | ATTR_SYS | ATTR_VOLUME)
 
 #define DELETED_FLAG	((char)0xe5) /* Marks deleted files when in name[0] */
-#define aRING		0x05	     /* Used to represent 'å' in name[0] */
+#define aRING		0x05	     /* Used to represent '? in name[0] */
 
 /* Indicates that the entry is the last long entry in a set of long
  * dir entries
@@ -80,7 +96,8 @@
 #define LS_DIR	1
 #define LS_ROOT	2
 
-#ifdef DEBUG
+//#define FAT_DEBUG
+#ifdef FAT_DEBUG
 #define FAT_DPRINT(args...)	printf(args)
 #else
 #define FAT_DPRINT(args...)
@@ -108,9 +125,12 @@
 #endif
 
 #define TOLOWER(c)	if((c) >= 'A' && (c) <= 'Z'){(c)+=('a' - 'A');}
+#define TOUPPER(c)	if((c) >= 'a' && (c) <= 'z'){(c)-=('a' - 'A');}
 #define START(dent)	(FAT2CPU16((dent)->start) \
 			+ (mydata->fatsize != 32 ? 0 : \
 			  (FAT2CPU16((dent)->starthi) << 16)))
+#define CHECK_CLUST(x, fatsize) ((x) <= 1 || \
+					(x) >= ((fatsize) != 32 ? 0xfff0 : 0xffffff0))			  
 
 
 typedef struct boot_sector {
@@ -183,6 +203,7 @@ typedef struct {
 	__u16	rootdir_sect;	/* Start sector of root directory */
 	__u16	clust_size;	/* Size of clusters in sectors */
 	short	data_begin;	/* The sector of the first cluster, can be negative */
+	short   reserved;	/* un-used */
 	__u8	fatbuf[FATBUFSIZE]; /* Current FAT buffer */
 	int	fatbufnum;	/* Used by get_fatent, init to -1 */
 } fsdata;
@@ -209,6 +230,7 @@ int file_cd(const char *path);
 int file_fat_detectfs(void);
 int file_fat_ls(const char *dir);
 long file_fat_read(const char *filename, void *buffer, unsigned long maxsize);
+long file_fat_write(const char *filename, void *buffer, unsigned long maxsize);
 const char *file_getfsname(int idx);
 int fat_register_device(block_dev_desc_t *dev_desc, int part_no);
 

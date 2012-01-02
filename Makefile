@@ -5,20 +5,20 @@
 # See file CREDITS for list of people who contributed to this
 # project.
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
+# Some descriptions of such software. Copyright (c) 2008 WonderMedia Technologies, Inc.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# This program is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software Foundation,
+# either version 2 of the License, or (at your option) any later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with
+# this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# WonderMedia Technologies, Inc.
+# 10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
 #
 
 HOSTARCH := $(shell uname -m | \
@@ -57,7 +57,7 @@ ifeq ($(ARCH),ppc)
 CROSS_COMPILE = powerpc-linux-
 endif
 ifeq ($(ARCH),arm)
-CROSS_COMPILE = arm-linux-
+CROSS_COMPILE = arm_v5t_le-
 endif
 ifeq ($(ARCH),i386)
 ifeq ($(HOSTARCH),i386)
@@ -111,7 +111,7 @@ ifdef SOC
 LIBS += cpu/$(CPU)/$(SOC)/lib$(SOC).a
 endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
-LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
+LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a fs/mem/libmemblock.a\
 	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
@@ -130,7 +130,7 @@ PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
 SUBDIRS	= tools \
-	  examples \
+#	  examples \
 	  post \
 	  post/cpu
 .PHONY : $(SUBDIRS)
@@ -1506,6 +1506,9 @@ smdk2400_config	:	unconfig
 smdk2410_config	:	unconfig
 	@./mkconfig $(@:_config=) arm arm920t smdk2410 NULL s3c24x0
 
+wmt_config	:	unconfig
+	@./mkconfig $(@:_config=) arm arm920t wmt NULL wmt
+
 SX1_config :		unconfig
 	@./mkconfig $(@:_config=) arm arm925t sx1
 
@@ -1816,6 +1819,7 @@ suzaku_config:	unconfig
 #########################################################################
 
 clean:
+	find . -name ".depend" |xargs rm -rf
 	find . -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
 		-o -name '*.o'  -o -name '*.a'  \) -print \

@@ -1,0 +1,186 @@
+/*++
+	linux/include/asm-arm/arch-wmt/wmt_mmap.h
+
+	Copyright (c) 2008  WonderMedia Technologies, Inc.
+
+	This program is free software: you can redistribute it and/or modify it under the
+	terms of the GNU General Public License as published by the Free Software Foundation,
+	either version 2 of the License, or (at your option) any later version.
+
+	This program is distributed in the hope that it will be useful, but WITHOUT
+	ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+	PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+	You should have received a copy of the GNU General Public License along with
+	this program.  If not, see <http://www.gnu.org/licenses/>.
+
+	WonderMedia Technologies, Inc.
+	10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
+--*/
+
+/* Be sure that virtual mapping is defined right */
+
+#ifndef __WMT_MMAP_H
+#define __WMT_MMAP_H
+
+
+
+#define EXTERNAL_AHB_BRIDGE_BASE_ADDR           0xB0000000
+#define INTERNAL_AHB_SLAVES_BASE_ADDR           0xD8000000
+#define INTERNAL_APB_SLAVES_BASE_ADDR           0xD8100000
+
+#define FLASH_BASE_ADDR                         0xE0000000  /* 512M */ // WM8425
+
+/*
+ *  Internal AHB Slaves Memory Address Map
+ */
+#define MEMORY_CTRL_V3_CFG_BASE_ADDR            0xD8000000  /* 1K , 8/16/32 RW */
+#define MEMORY_CTRL_V4_CFG_BASE_ADDR            0xD8000400  /* 1K , 8/16/32 RW */ // WM8425
+/* Reserved                                     0xD8000800 - 0xD8000FFF */
+/* Reserved                                     0xD8001000 - 0xD80017FF */
+#define DMA_CTRL0_V3_CFG_BASE_ADDR              0xD8001000  /* 1K , 8/16/32 RW */
+#define DMA_CTRL1_V3_CFG_BASE_ADDR              0xD8001400  /* 1K , 8/16/32 RW */
+#define DMA_CTRL_V4_CFG_BASE_ADDR               0xD8001800  /* 1K , 8/16/32 RW */ // WM8425
+#define PICTOR_DMA_CTRL_CFG_BASE_ADDR           0xD8001C00  /* 1K , 8/16/32 RW */
+#define SF_MEM_CTRL_CFG_BASE_ADDR               0xD8002000  /* 1K , 8/16/32 RW */ // WM8425
+/* Reserved                                     0xD8002400 - 0xD8002FFF */
+// Check SPI_MEM_CTRL_CFG_BASE_ADDR in WM8425 is use
+#define LPC_MEM_CTRL_CFG_BASE_ADDR              0xD8003000  /* 1K , 8/16/32 RW */
+#define SPI_MEM_CTRL_CFG_BASE_ADDR              0xD8003000  /* 1K , 8/16/32 RW */
+/* Reserved                                     0xD8003400 - 0xD8003FFF */
+#define ETHERNET_MAC_0_CFG_BASE_ADDR            0xD8004000  /* 1K , 8/16/32 RW */ // WM8425
+/* Reserved                                     0xD8004400 - 0xD8004FFF */
+#define ETHERNET_MAC_1_CFG_BASE_ADDR            0xD8005000  /* 1K , 8/16/32 RW */
+/* Reserved                                     0xD8005400 - 0xD8005FFF */
+#define SECURITY_ENGINE_CFG_BASE_ADDR           0xD8006000  /* 1K , 8/16/32 RW */ // WM8425
+#define SECURITY_ENGINE_CFG_EXTENT_BASE_ADDR    0xD8006400  /* 3K , 8/16/32 RW */ // WM8425
+#define USB20_HOST_CFG_BASE_ADDR                0xD8007000  /* 2K , 8/16/32 RW */
+#define USB20_HOST_DEVICE_CFG_BASE_ADDR         0xD8007800  /* 2K , 8/16/32 RW */ // WM8425
+#define PATA_CTRL_CFG_BASE_ADDR                 0xD8008000  /* 2K , 8/16/32 RW */ // WM8425
+#define PS2_CFG_BASE_ADDR                       0xD8008800  /* 1K , 8/16/32 RW */ // WM8425
+#define USB20_HOST_CFG_EXTENT_BASE_ADDR         0xD8008C00  /* 1K , 8/16/32 RW */ // WM8425
+#define NF_CTRL_CFG_BASE_ADDR                   0xD8009000  /* 1K , 8/16/32 RW */ // WM8425
+#define NOR_CTRL_CFG_BASE_ADDR                  0xD8009400  /* 1K , 8/16/32 RW */
+#define USB20_DEVICE_CFG_BASE_ADDR              0xD8009800  /* 2K , 8/16/32 RW */
+#define SD0_SDIO_MMC_BASE_ADDR                  0xD800A000  /* 1K , 8/16/32 RW */ // WM8425
+#define SD1_SDIO_MMC_BASE_ADDR                  0xD800A400  /* 1K , 8/16/32 RW */ // WM8425
+/* Reserved                                     0xD800A800 - 0xD800AFFF */
+#define MS_CTRL_CFG_BASE_ADDR                   0xD800B000  /* 1K , 8/16/32 RW */ // WM8425
+#define XD_CTRL_CFG_BASE_ADDR                   0xD800B400  /* 1K , 8/16/32 RW */ // WM8425
+/* Reserved                                     0xD800B800 - 0xD800BFFF */
+#define CF_CTRL_CFG_BASE_ADDR                   0xD800C000  /* 1K , 8/16/32 RW */
+/* Reserved                                     0xD800C400 - 0xD800CFFF */
+#define SATA_CTRL_CFG_BASE_ADDR                 0xD800D000  /* 2K , 8/16/32 RW */
+/* Reserved                                     0xD800D800 - 0xD800DFFF */
+#define XOR_CTRL_CFG_BASE_ADDR                  0xD800E000  /* 1K , 8/16/32 RW */
+#define LCD_CTRL_CFG_BASE_ADDR                  0xD800E400  /* 1K , 8/16/32 RW */
+/* Reserved                                     0xD800E800 - 0xD802FBFF */
+#define ASYNC_APB_BRIDGE_BASE_ADDR				0xD802FC00  /* 1K , 8/16/32 RW */ // WM8425
+#define LPC_TPM_CFG_BASE_ADDR                   0xD8030000  /* 64K , 8/16/32 RW */
+#define LPC_SUPERIO_CFG_BASE_ADDR               0xD8040000  /* 64K , 8/16/32 RW */
+
+#define VPU_BASE_ADDR				        	0xD8050100  /* 256 , 8/16/32 RW */ // WM8425
+#define VPU_BASE2_ADDR				        	0xD8050200  /* 256 , 8/16/32 RW */ // WM8425
+#define SPU1_BASE_ADDR					       	0xD8050100  /* 256 , 8/16/32 RW */ // WM8425
+#define SPU2_BASE_ADDR      				 	0xD8050200  /* 256 , 8/16/32 RW */ // WM8425
+#define GOVM_BASE_ADDR   				    	0xD8050300  /* 256 , 8/16/32 RW */ // WM8425
+#define GE1_BASE_ADDR       				 	0xD8050400  /* 256 , 8/16/32 RW */ // WM8425
+#define GE2_BASE_ADDR     					   	0xD8050500  /* 256 , 8/16/32 RW */ // WM8425
+#define GE3_BASE_ADDR        					0xD8050600  /* 256 , 8/16/32 RW */ // WM8425
+#define DISP_BASE_ADDR     					  	0xD8050700  /* 256 , 8/16/32 RW */ // WM8425
+#define GOVRH_BASE1_ADDR  					   	0xD8050800  /* 256 , 8/16/32 RW */ // WM8425
+#define GOVRH_BASE2_ADDR   					  	0xD8050900  /* 256 , 8/16/32 RW */ // WM8425
+#define VID_BASE_ADDR      					  	0xD8050A00  /* 256 , 8/16/32 RW */ // WM8425
+#define HDTV_CTRL_BASE_ADDR      				0xD8050B00  /* 256 , 8/16/32 RW */
+#define GOVW_BASE_ADDR       					0xD8050C00  /* 256 , 8/16/32 RW */ // WM8425
+#define SCL_BASE_ADDR    						0xD8050D00  /* 256 , 8/16/32 RW */ // WM8425
+#define SCL_BASE2_ADDR    						0xD8050000  /* 256 , 8/16/32 RW */ // WM8425
+#define DISP2_BASE_ADDR    						0xD8050E00  /* 256 , 8/16/32 RW */ // WM8425
+#define VPP_BASE_ADDR     						0xD8050F00  /* 256 , 8/16/32 RW */ // WM8425
+/* Reserved for VPP                             0xD8051000 - 0xD805FFFF */
+#define HDMI_TRANSMITTE_BASE_ADDR  	            0xD8060000  /* 64K , 8/16/32 RW */
+#define HDCP_BASE_ADDR  			            0xD8070000  /* 64K , 8/16/32 RW */
+/* Reserved                                     0xD8080000 - 0xD80E3FFF */
+#define USB2_OTG_CFG_BASE_ADDR                  0xD80E4000  /* 16K , 8/16/32 RW */
+/* Reserved                                     0xD80E8000 - 0xD80D7FFF */
+#define AUDREGF_BASE_ADDR                       0xD80ED800  /* 1K , 8/16/32 RW */ // WM8425
+#define PART_OF_AUDREGF_BASE_ADDR               0xD80EDC00  /* 1K , 8/16/32 RW */ // WM8425
+#define DSS_MBOX_BASE_ADDR                      0xD80EE000  /* 1K , 8/16/32 RW */ // WM8425
+#define DSS_PERM_BASE_ADDR                      0xD80EE400  /* 1K , 8/16/32 RW */ // WM8425
+/* Reserved                                     0xD80EE800 - 0xD80EFFF */
+#define VDU_BASE_ADDR                           0xD80F0000  /* 1K , 8/16/32 RW */ // WM8425
+#define SCRCNT_BASE_ADDR                        0xD80F0400  /* 256 , 8/16/32 RW */ // WM8425
+/* Reserved                                     0xD80F0500 - 0xD80F0FFF */
+#define VLDBUF_BASE_ADDR                        0xD80F1000  /* 1K , 8/16/32 RW */ // WM8425
+#define IQ_BASE_ADDR                            0xD80F1400  /* 1K , 8/16/32 RW */ // WM8425
+#define IDCT_BASE_ADDR                          0xD80F1800  /* 1K , 8/16/32 RW */ // WM8425
+/* Reserved                                     0xD80F1C00 - 0xD80F1FFF */
+#define STREAMIN_BASE_ADDR                      0xD80F2000  /* 1K , 8/16/32 RW */ // WM8425
+/* Reserved                                     0xD80F2400 - 0xD80F2FFF */
+#define CSS_FIFO_BASE_ADDR                      0xD80F3000  /* 1K , 8/16/32 RW */ // WM8425
+#define AVBO_FIFO_BASE_ADDR                     0xD80F3400  /* 1K , 8/16/32 RW */ // WM8425
+#define SPU_FIFO_BASE_ADDR                      0xD80F3800  /* 1K , 8/16/32 RW */ // WM8425
+/* Reserved                                     0xD80F3C00 - 0xD80F3FFF */
+#define TSIN0_BASE_ADDR                         0xD80F4000  /* 4K , 8/16/32 RW */ // WM8425
+#define TSIN1_BASE_ADDR                         0xD80F5000  /* 4K , 8/16/32 RW */
+#define TSIN2_BASE_ADDR                         0xD80F6000  /* 4K , 8/16/32 RW */
+#define TSOUT_BASE_ADDR                         0xD80F7000  /* 4K , 8/16/32 RW */
+#define H264_DECODER_BASE_ADDR                  0xD80F8000  /* 16K , 8/16/32 RW */ // WM8425
+/* Reserved                                     0xD80FC000 - 0xD80FDFFF */
+#define JPEG_DECODER_BASE_ADDR                  0xD80FE000  /* 4K , 8/16/32 RW */ // WM8425
+#define JPEG_ENCODER_BASE_ADDR                  0xD80FF000  /* 4K , 8/16/32 RW */
+
+
+/*
+ *  Internal APB Slaves Memory Address Map
+ */
+#define RTC_BASE_ADDR                           0xD8100000  /* 64K  */ // WM8425
+#define GPIO_BASE_ADDR                          0xD8110000  /* 64K  */ // WM8425
+#define SYSTEM_CFG_CTRL_BASE_ADDR               0xD8120000  /* 64K  */ // WM8425
+#define PM_CTRL_BASE_ADDR                       0xD8130000  /* 64K  */ // WM8425
+#define INTERRUPT0_CTRL_BASE_ADDR               0xD8140000  /* 64K  */ // WM8425
+#define INTERRUPT1_CTRL_BASE_ADDR               0xD8150000  /* 64K  */ // WM8425
+/* Reserved                                     0xD8160000 - 0xD81EFFFF */
+#define AUDIO_CODEC_BASE_ADDR                   0xD81F0000  /* 64K  */
+#define UART1_BASE_ADDR                         0xD8200000  /* 64K  */ // WM8425
+#define UART2_BASE_ADDR                         0xD82b0000  /* 64K  */ // WM8425
+#define UART3_BASE_ADDR                         0xD8210000  /* 64K  */ // WM8425
+#define UART4_BASE_ADDR                         0xD82c0000  /* 64K  */ // WM8425
+#define UART5_BASE_ADDR                         0xD8370000  /* 64K  */
+#define UART6_BASE_ADDR                         0xD8380000  /* 64K  */
+#define PWM0_BASE_ADDR                          0xD8220000  /* 64K  */ // WM8425
+/* Reserved                                     0xD8230000 - 0xD823FFFF */
+#define SPI0_BASE_ADDR                          0xD8240000  /* 64K  */ // WM8425
+#define SPI1_BASE_ADDR                          0xD8250000  /* 64K  */ // WM8425
+#define SPI2_BASE_ADDR                          0xD82A0000  /* 64K  */
+#define KPAD_BASE_ADDR				0xD8260000  /* 64K  */ // WM8425
+#define CIR_BASE_ADDR                           0xD8270000  /* 64K  */ // WM8425
+#define I2C0_BASE_ADDR                          0xD8280000  /* 64K  */ // WM8425
+#define I2C1_BASE_ADDR                          0xD8320000  /* 64K  */
+#define PCM_BASE_ADDR                           0xD82D0000  /* 64K  */ // WM8425
+#define AC97_BASE_ADDR                          0xD8290000  /* 64K  */ // WM8425
+
+#define AHB_ACCESS_MONITOR0_BASE_ADDR           0xD82E0000
+#define AHB_ACCESS_MONITOR1_BASE_ADDR           0xD82F0000
+#define AHB_ACCESS_MONITOR2_BASE_ADDR           0xD8300000
+#define AHB_ACCESS_MONITOR3_BASE_ADDR           0xD8310000
+
+#define ADC_BASE_ADDR                           0xD8340000  /* 64K  */
+#define ROTARY_DETECTOR_BASE_ADDR               0xD8350000  /* 64K  */
+#define SMART_CARD_INTERFACE_BASE_ADDR          0xD8360000  /* 64K  */ // WM8425
+#define POWER_MOS_BASE_ADDR                     0xD8390000  /* 64K  */ // WM8425
+/* Reserved                                     0xD83A0000 - 0xD8FFFFFF */
+
+// check
+#define MEMORY_CTRL_CFG_BASE_ADDR               MEMORY_CTRL_V3_CFG_BASE_ADDR
+#define DMA_CTRL_CFG_BASE_ADDR                  DMA_CTRL_V4_CFG_BASE_ADDR
+#define LPC_CTRL_CFG_BASE_ADDR                  LPC_SUPERIO_CFG_BASE_ADDR
+#define HDMI1_BASE_ADDR    			0xD806C000
+#define HDMI2_BASE_ADDR      			0xD8070000
+#define GOVR_BASE_ADDR       			0xD8050B00
+#define INTERRUPT_CTRL_BASE_ADDR                INTERRUPT0_CTRL_BASE_ADDR
+#define SPI_BASE_ADDR                           SPI0_BASE_ADDR
+#define I2C_BASE_ADDR                           I2C0_BASE_ADDR
+//#define I2S_BASE_ADDR							AUDREGF_BASE_ADDR
+#define I2S_BASE_ADDR			        0xD8330000
+
+#endif	/* __WMT_MMAP_H */

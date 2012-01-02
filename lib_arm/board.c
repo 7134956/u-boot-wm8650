@@ -9,20 +9,20 @@
  * See file CREDITS for list of people who contributed to this
  * project.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * Copyright (c) 2008 WonderMedia Technologies, Inc.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 2 of the License, or (at your option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * WonderMedia Technologies, Inc.
+ * 10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
  */
 
 #include <common.h>
@@ -31,6 +31,8 @@
 #include <devices.h>
 #include <version.h>
 #include <net.h>
+#include "../version.h"
+#include <asm-arm/arch-wmt/common_def.h>
 
 #ifdef CONFIG_DRIVER_SMC91111
 #include "../drivers/smc91111.h"
@@ -39,8 +41,18 @@
 #include "../drivers/lan91c96.h"
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
-void nand_init (void);
+void nand_init(void);
+extern ulong nand_probe(ulong physadr);
+void nand_init(void)
+{
+	unsigned long totlen;
+
+	totlen = nand_probe(0xd8009000);
+	printf("%4lu MB\n", totlen >> 20);
+}
 #endif
 
 ulong monitor_flash_len;
@@ -58,42 +70,46 @@ const char version_string[] =
 	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")"CONFIG_IDENT_STRING;
 
 #ifdef CONFIG_DRIVER_CS8900
-extern void cs8900_get_enetaddr (uchar * addr);
+extern void cs8900_get_enetaddr(uchar *addr);
 #endif
 
 #ifdef CONFIG_DRIVER_RTL8019
-extern void rtl8019_get_enetaddr (uchar * addr);
+extern void rtl8019_get_enetaddr(uchar *addr);
 #endif
 
 /*
  * Begin and End of memory area for malloc(), and current "brk"
  */
-static ulong mem_malloc_start = 0;
-static ulong mem_malloc_end = 0;
-static ulong mem_malloc_brk = 0;
+static ulong mem_malloc_start;
+static ulong mem_malloc_end;
+static ulong mem_malloc_brk;
 
 static
-void mem_malloc_init (ulong dest_addr)
+void mem_malloc_init(ulong dest_addr)
 {
 	mem_malloc_start = dest_addr;
 	mem_malloc_end = dest_addr + CFG_MALLOC_LEN;
 	mem_malloc_brk = mem_malloc_start;
 
-	memset ((void *) mem_malloc_start, 0,
+	memset((void *) mem_malloc_start, 0,
 			mem_malloc_end - mem_malloc_start);
 }
 
-void *sbrk (ptrdiff_t increment)
+void *sbrk(ptrdiff_t increment)
 {
 	ulong old = mem_malloc_brk;
 	ulong new = old + increment;
 
-	if ((new < mem_malloc_start) || (new > mem_malloc_end)) {
-		return (NULL);
-	}
+	if ((new < mem_malloc_start) || (new > mem_malloc_end))
+		return NULL;
+
 	mem_malloc_brk = new;
 
-	return ((void *) old);
+	return (void *)old;
+}
+
+void raise(void)
+{
 }
 
 /************************************************************************
@@ -104,63 +120,236 @@ void *sbrk (ptrdiff_t increment)
  * but let's get it working (again) first...
  */
 
-static int init_baudrate (void)
+static int init_baudrate(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
-	uchar tmp[64];	/* long enough for environment variables */
-	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
+	char tmp[64];	/* long enough for environment variables */
+	int i = getenv_r("baudrate", tmp, sizeof(tmp));
 	gd->bd->bi_baudrate = gd->baudrate = (i > 0)
-			? (int) simple_strtoul (tmp, NULL, 10)
+			? (int) simple_strtoul(tmp, NULL, 10)
 			: CONFIG_BAUDRATE;
 
-	return (0);
+	return 0;
 }
 
-static int display_banner (void)
+static int display_banner(void)
 {
-	printf ("\n\n%s\n\n", version_string);
-	printf ("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
+	printf("\n\n%s\n", version_string);
+	printf("WonderMedia Technologies, Inc.\n");
+	printf("U-Boot Version : %s\n", WMT_U_BOOT_VERSION);
+	printf("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
 		_armboot_start, _bss_start, _bss_end);
 #ifdef CONFIG_MODEM_SUPPORT
-	puts ("Modem Support enabled\n");
+	puts("Modem Support enabled\n");
 #endif
 #ifdef CONFIG_USE_IRQ
-	printf ("IRQ Stack: %08lx\n", IRQ_STACK_START);
-	printf ("FIQ Stack: %08lx\n", FIQ_STACK_START);
+	printf("IRQ Stack: %08lx\n", IRQ_STACK_START);
+	printf("FIQ Stack: %08lx\n", FIQ_STACK_START);
 #endif
 
-	return (0);
+	return 0;
+}
+#define GPIO_BASE_ADDR 		0xD8110000
+void wmt_gpio_set(void) {
+
+	char *s;
+	char pin[32],value[32],time[64];
+	int i = 0,len = 0,j=0;
+	int gpio_pin,gpio_value,gpio_time;
+	
+	s = getenv("wmt.gpio.set");
+	
+
+	if (s != NULL) {
+		len = strlen(s);
+		//printf("wmt.gpio.set = %s len = %d\n",s,len);
+		if (len <5)
+			return;
+		/*read gpio pin*/
+		for (i=0,j=0; i < len; i++,j++) {
+			if (s[i] != ':') {
+				pin[j] = s[i];
+			} else {
+				i++;
+				break;
+			}
+		}
+		/*No gpio pin*/
+		if (j == 0)
+			return;
+
+		j=0;
+		/*read gpio value*/
+		for (j=0; i < len; i++,j++) {
+			if (s[i] != ':') {
+				value[j] = s[i];
+			} else {
+				i++;
+				break;
+			}
+		}
+		/*No gpio value*/
+		if (j == 0)
+			return;
+
+		j=0;
+		for (j=0; i < len; i++,j++) {
+			if (s[i] != ':') {
+				time[j] = s[i];
+			} else {
+				i++;
+				break;
+			}
+		}
+		/*No gpio time*/
+		if (j == 0)
+			return;
+
+		gpio_pin = simple_strtol(pin, NULL, 10);
+		gpio_value = simple_strtol(value, NULL, 10);
+		gpio_time = simple_strtol(time, NULL, 10);
+		//printf("gpio_pin = %d gpio_value = %d gpio_time = %d\n",gpio_pin,gpio_value,gpio_time);
+			
+		if (gpio_pin >7 || gpio_pin < 0)
+			return;
+		if (gpio_value < 0 || gpio_value > 1)
+			return;
+		if (gpio_time < 1)
+			return;
+		
+		switch (gpio_pin) {
+		case 0:	
+			REG32_VAL(GPIO_BASE_ADDR + 0x24) |= BIT0; /*set as gpio pin*/
+			REG32_VAL(GPIO_BASE_ADDR + 0x54) |= BIT0; /*set as gpo*/
+			if (gpio_value == 0) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT0; /*output low*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT0; /*output high*/
+			} else if (gpio_value == 1) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT0; /*output high*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT0; /*output low*/
+			}
+			break;
+		case 1:	
+			REG32_VAL(GPIO_BASE_ADDR + 0x24) |= BIT1; /*set as gpio pin*/
+			REG32_VAL(GPIO_BASE_ADDR + 0x54) |= BIT1; /*set as gpo*/
+			if (gpio_value == 0) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT1; /*output low*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT1; /*output high*/
+			} else if (gpio_value == 1) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT1; /*output high*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT1; /*output low*/
+			}
+			break;
+		case 2:	
+			REG32_VAL(GPIO_BASE_ADDR + 0x24) |= BIT2; /*set as gpio pin*/
+			REG32_VAL(GPIO_BASE_ADDR + 0x54) |= BIT2; /*set as gpo*/
+			if (gpio_value == 0) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT2; /*output low*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT2; /*output high*/
+			} else if (gpio_value == 1) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT2; /*output high*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT2; /*output low*/
+			}
+			break;
+		case 3:	
+			REG32_VAL(GPIO_BASE_ADDR + 0x24) |= BIT3; /*set as gpio pin*/
+			REG32_VAL(GPIO_BASE_ADDR + 0x54) |= BIT3; /*set as gpo*/
+			if (gpio_value == 0) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT3; /*output low*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT3; /*output high*/
+			} else if (gpio_value == 1) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT3; /*output high*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT3; /*output low*/
+			}
+			break;
+		case 4:	
+			REG32_VAL(GPIO_BASE_ADDR + 0x24) |= BIT16; /*set as gpio pin*/
+			REG32_VAL(GPIO_BASE_ADDR + 0x54) |= BIT16; /*set as gpo*/
+			if (gpio_value == 0) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT16; /*output low*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT16; /*output high*/
+			} else if (gpio_value == 1) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT16; /*output high*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT16; /*output low*/
+			}
+			break;
+		case 5:	
+			REG32_VAL(GPIO_BASE_ADDR + 0x24) |= BIT17; /*set as gpio pin*/
+			REG32_VAL(GPIO_BASE_ADDR + 0x54) |= BIT17; /*set as gpo*/
+			if (gpio_value == 0) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT17; /*output low*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT17; /*output high*/
+			} else if (gpio_value == 1) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT17; /*output high*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT17; /*output low*/
+			}
+			break;
+		case 6:	
+			REG32_VAL(GPIO_BASE_ADDR + 0x24) |= BIT4; /*set as gpio pin*/
+			REG32_VAL(GPIO_BASE_ADDR + 0x54) |= BIT4; /*set as gpo*/
+			if (gpio_value == 0) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT4; /*output low*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT4; /*output high*/
+			} else if (gpio_value == 1) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT4; /*output high*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT4; /*output low*/
+			}
+			break;
+		case 7:	
+			REG32_VAL(GPIO_BASE_ADDR + 0x24) |= BIT5; /*set as gpio pin*/
+			REG32_VAL(GPIO_BASE_ADDR + 0x54) |= BIT5; /*set as gpo*/
+			if (gpio_value == 0) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT5; /*output low*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT5; /*output high*/
+			} else if (gpio_value == 1) {
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) |= BIT5; /*output high*/
+				for(i=0; i < gpio_time;i++)
+					udelay(1000);
+				REG32_VAL(GPIO_BASE_ADDR + 0x84) &= ~BIT5; /*output low*/
+			}
+			break;
+		default:
+			break;
+		}
+		
+	} 
+	
 }
 
-/*
- * WARNING: this code looks "cleaner" than the PowerPC version, but
- * has the disadvantage that you either get nothing, or everything.
- * On PowerPC, you might see "DRAM: " before the system hangs - which
- * gives a simple yet clear indication which part of the
- * initialization if failing.
- */
-static int display_dram_config (void)
+static void display_flash_config(ulong size)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-	int i;
-
-	puts ("RAM Configuration:\n");
-
-	for(i=0; i<CONFIG_NR_DRAM_BANKS; i++) {
-		printf ("Bank #%d: %08lx ", i, gd->bd->bi_dram[i].start);
-		print_size (gd->bd->bi_dram[i].size, "\n");
-	}
-
-	return (0);
+	puts("Flash: ");
+	print_size(size, "\n");
 }
-
-static void display_flash_config (ulong size)
-{
-	puts ("Flash: ");
-	print_size (size, "\n");
-}
-
 
 /*
  * Breathe some life into the board...
@@ -187,6 +376,11 @@ static void display_flash_config (ulong size)
  */
 typedef int (init_fnc_t) (void);
 
+/* {JHT */
+#if defined(CONFIG_WMT)
+int wmt_post(void);
+#endif
+
 init_fnc_t *init_sequence[] = {
 	cpu_init,		/* basic cpu dependent setup */
 	board_init,		/* basic board dependent setup */
@@ -197,17 +391,18 @@ init_fnc_t *init_sequence[] = {
 	console_init_f,		/* stage 1 init of console */
 	display_banner,		/* say that we are here */
 	dram_init,		/* configure available RAM banks */
-	display_dram_config,
-#if defined(CONFIG_VCMA9) || defined (CONFIG_CMC_PU2)
+#if defined(CONFIG_VCMA9) || defined(CONFIG_CMC_PU2)
 	checkboard,
+#endif
+    /* {JHT} */
+#if defined(CONFIG_WMT)
+    wmt_post,
 #endif
 	NULL,
 };
 
-void start_armboot (void)
+void start_armboot(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong size;
 	init_fnc_t **init_fnc_ptr;
 	char *s;
@@ -216,25 +411,24 @@ void start_armboot (void)
 #endif
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t*)(_armboot_start - CFG_MALLOC_LEN - sizeof(gd_t));
+	gd = (gd_t *)(_armboot_start - CFG_MALLOC_LEN - sizeof(gd_t));
 	/* compiler optimization barrier needed for GCC >= 3.4 */
-	__asm__ __volatile__("": : :"memory");
+	__asm__ __volatile__("" : : : "memory");
 
-	memset ((void*)gd, 0, sizeof (gd_t));
-	gd->bd = (bd_t*)((char*)gd - sizeof(bd_t));
-	memset (gd->bd, 0, sizeof (bd_t));
+	memset((void *)gd, 0, sizeof(gd_t));
+	gd->bd = (bd_t *)((char *)gd - sizeof(bd_t));
+	memset(gd->bd, 0, sizeof(bd_t));
 
 	monitor_flash_len = _bss_start - _armboot_start;
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
-		if ((*init_fnc_ptr)() != 0) {
-			hang ();
-		}
+		if ((*init_fnc_ptr)() != 0)
+			hang();
 	}
 
 	/* configure available FLASH banks */
-	size = flash_init ();
-	display_flash_config (size);
+	size = flash_init();
+	display_flash_config(size);
 
 #ifdef CONFIG_VFD
 #	ifndef PAGE_SIZE
@@ -245,7 +439,7 @@ void start_armboot (void)
 	 */
 	/* bss_end is defined in the board-specific linker script */
 	addr = (_bss_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
-	size = vfd_setmem (addr);
+	size = vfd_setmem(addr);
 	gd->fb_base = addr;
 #endif /* CONFIG_VFD */
 
@@ -258,16 +452,18 @@ void start_armboot (void)
 	 */
 	/* bss_end is defined in the board-specific linker script */
 	addr = (_bss_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
-	size = lcd_setmem (addr);
+	size = lcd_setmem(addr);
 	gd->fb_base = addr;
 #endif /* CONFIG_LCD */
 
 	/* armboot_start is defined in the board-specific linker script */
-	mem_malloc_init (_armboot_start - CFG_MALLOC_LEN);
+	mem_malloc_init(_armboot_start - CFG_MALLOC_LEN);
 
 #if (CONFIG_COMMANDS & CFG_CMD_NAND)
-	puts ("NAND:");
-	nand_init();		/* go init the NAND */
+    if (((*(volatile unsigned int *)(0xD8110100))&2) == 2) {
+	    puts("nandboot NAND:");      /* nand boot*/
+    	nand_init();		/* go init the NAND */
+    }
 #endif
 
 #ifdef CONFIG_HAS_DATAFLASH
@@ -276,7 +472,14 @@ void start_armboot (void)
 #endif
 
 	/* initialize environment */
-	env_relocate ();
+	env_relocate();
+
+#if (CONFIG_COMMANDS & CFG_CMD_NAND)
+    if (((*(volatile unsigned int *)(0xD8110100))&2) == 0) {
+	    puts("sfboot NAND:");      /* sf boot*/
+	    nand_init();		/* go init the NAND */
+    }
+#endif
 
 #ifdef CONFIG_VFD
 	/* must do this after the framebuffer is allocated */
@@ -284,91 +487,91 @@ void start_armboot (void)
 #endif /* CONFIG_VFD */
 
 	/* IP Address */
-	gd->bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
+	gd->bd->bi_ip_addr = getenv_IPaddr("ipaddr");
 
 	/* MAC Address */
 	{
 		int i;
 		ulong reg;
 		char *s, *e;
-		uchar tmp[64];
+		char tmp[64];
 
-		i = getenv_r ("ethaddr", tmp, sizeof (tmp));
+		i = getenv_r("ethaddr", tmp, sizeof(tmp));
 		s = (i > 0) ? tmp : NULL;
 
 		for (reg = 0; reg < 6; ++reg) {
-			gd->bd->bi_enetaddr[reg] = s ? simple_strtoul (s, &e, 16) : 0;
+			gd->bd->bi_enetaddr[reg] = s ? simple_strtoul(s, &e, 16) : 0;
 			if (s)
 				s = (*e) ? e + 1 : e;
 		}
 	}
 
-	devices_init ();	/* get the devices list going. */
+	devices_init();	/* get the devices list going. */
 
 #ifdef CONFIG_CMC_PU2
-	load_sernum_ethaddr ();
+	load_sernum_ethaddr();
 #endif /* CONFIG_CMC_PU2 */
 
-	jumptable_init ();
+	jumptable_init();
 
-	console_init_r ();	/* fully init console as a device */
+	console_init_r();	/* fully init console as a device */
 
 #if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */
-	misc_init_r ();
+	misc_init_r();
 #endif
 
 	/* enable exceptions */
-	enable_interrupts ();
+	enable_interrupts();
 
 	/* Perform network card initialisation if necessary */
 #ifdef CONFIG_DRIVER_CS8900
-	cs8900_get_enetaddr (gd->bd->bi_enetaddr);
+	cs8900_get_enetaddr(gd->bd->bi_enetaddr);
 #endif
 
-#if defined(CONFIG_DRIVER_SMC91111) || defined (CONFIG_DRIVER_LAN91C96)
-	if (getenv ("ethaddr")) {
+#if defined(CONFIG_DRIVER_SMC91111) || defined(CONFIG_DRIVER_LAN91C96)
+	if (getenv("ethaddr"))
 		smc_set_mac_addr(gd->bd->bi_enetaddr);
-	}
 #endif /* CONFIG_DRIVER_SMC91111 || CONFIG_DRIVER_LAN91C96 */
 
 	/* Initialize from environment */
-	if ((s = getenv ("loadaddr")) != NULL) {
-		load_addr = simple_strtoul (s, NULL, 16);
-	}
+	s = getenv("loadaddr");
+	if (s != NULL)
+		load_addr = simple_strtoul(s, NULL, 16);
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
-	if ((s = getenv ("bootfile")) != NULL) {
-		copy_filename (BootFile, s, sizeof (BootFile));
-	}
+	s = getenv("bootfile");
+	if (s != NULL)
+		copy_filename(BootFile, s, sizeof(BootFile));
 #endif	/* CFG_CMD_NET */
 
 #ifdef BOARD_LATE_INIT
-	board_late_init ();
+	board_late_init();
 #endif
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
 #if defined(CONFIG_NET_MULTI)
-	puts ("Net:   ");
+	puts("Net:   ");
 #endif
 	eth_initialize(gd->bd);
 #endif
+	wmt_gpio_set();
 	/* main_loop() can return to retry autoboot, if so just run it again. */
-	for (;;) {
-		main_loop ();
-	}
+	for (;;)
+		main_loop();
 
 	/* NOTREACHED - no way out of command loop except booting */
 }
 
-void hang (void)
+void hang(void)
 {
-	puts ("### ERROR ### Please RESET the board ###\n");
-	for (;;);
+	puts("### ERROR ### Please RESET the board ###\n");
+	for (;;)
+		;
 }
 
 #ifdef CONFIG_MODEM_SUPPORT
 /* called from main loop (common/main.c) */
 extern void  dbg(const char *fmt, ...);
-int mdm_init (void)
+int mdm_init(void)
 {
 	char env_str[16];
 	char *init_str;
@@ -383,17 +586,18 @@ int mdm_init (void)
 #ifdef CONFIG_HWFLOW
 	init_str = getenv("mdm_flow_control");
 	if (init_str && (strcmp(init_str, "rts/cts") == 0))
-		hwflow_onoff (1);
+		hwflow_onoff(1);
 	else
 		hwflow_onoff(-1);
 #endif
 
-	for (i = 1;;i++) {
+	for (i = 1; ; i++) {
 		sprintf(env_str, "mdm_init%d", i);
-		if ((init_str = getenv(env_str)) != NULL) {
+		init_str = getenv(env_str);
+		if (init_str != NULL) {
 			serial_puts(init_str);
 			serial_puts("\n");
-			for(;;) {
+			for ( ; ; ) {
 				mdm_readline(console_buffer, CFG_CBSIZE);
 				dbg("ini%d: [%s]", i, console_buffer);
 
@@ -416,7 +620,7 @@ int mdm_init (void)
 	udelay(100000);
 
 	/* final stage - wait for connect */
-	for(;i > 1;) { /* if 'i' > 1 - wait for connection
+	for ( ; i > 1; ) { /* if 'i' > 1 - wait for connection
 				  message from modem */
 		mdm_readline(console_buffer, CFG_CBSIZE);
 		dbg("ini_f: [%s]", console_buffer);
@@ -438,12 +642,12 @@ static inline void mdm_readline(char *buf, int bufsiz)
 
 	n = 0;
 	p = buf;
-	for(;;) {
+	for ( ; ; ) {
 		c = serial_getc();
 
 		/*		dbg("(%c)", c); */
 
-		switch(c) {
+		switch (c) {
 		case '\r':
 			break;
 		case '\n':
@@ -451,7 +655,7 @@ static inline void mdm_readline(char *buf, int bufsiz)
 			return;
 
 		default:
-			if(n++ > bufsiz) {
+			if (n++ > bufsiz) {
 				*p = '\0';
 				return; /* sanity check */
 			}

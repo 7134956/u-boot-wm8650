@@ -5,20 +5,20 @@
  * See file CREDITS for list of people who contributed to this
  * project.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * Copyright (c) 2008 WonderMedia Technologies, Inc.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
+ * This program is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 2 of the License, or (at your option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * WonderMedia Technologies, Inc.
+ * 10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
  */
 
 #ifndef _FLASH_H_
@@ -30,21 +30,21 @@
  */
 
 typedef struct {
-	ulong	size;			/* total bank size in bytes		*/
-	ushort	sector_count;		/* number of erase units		*/
-	ulong	flash_id;		/* combined device & manufacturer code	*/
+	ulong	size;           /* total bank size in bytes	*/
+	ushort	sector_count;	/* number of erase units    */
+	ulong	flash_id;       /* combined device & manufacturer code	*/
 	ulong	start[CFG_MAX_FLASH_SECT];   /* physical sector start addresses */
 	uchar	protect[CFG_MAX_FLASH_SECT]; /* sector protection status	*/
 #ifdef CFG_FLASH_CFI
-	uchar	portwidth;		/* the width of the port		*/
-	uchar	chipwidth;		/* the width of the chip		*/
-	ushort	buffer_size;		/* # of bytes in write buffer		*/
-	ulong	erase_blk_tout;		/* maximum block erase timeout		*/
-	ulong	write_tout;		/* maximum write timeout		*/
-	ulong	buffer_write_tout;	/* maximum buffer write timeout		*/
-	ushort	vendor;			/* the primary vendor id		*/
-	ushort	cmd_reset;		/* Vendor specific reset command	*/
-	ushort	interface;		/* used for x8/x16 adjustments		*/
+	uchar	 portwidth;         /* the width of the port         */
+	uchar	 chipwidth;         /* the width of the chip         */
+	ushort buffer_size;       /* # of bytes in write buffer    */
+	ulong	 erase_blk_tout;    /* maximum block erase timeout   */
+	ulong	 write_tout;        /* maximum write timeout         */
+	ulong	 buffer_write_tout; /* maximum buffer write timeout  */
+	ushort vendor;            /* the primary vendor id         */
+	ushort cmd_reset;         /* Vendor specific reset command */
+	ushort interface;         /* used for x8/x16 adjustments   */
 #endif
 } flash_info_t;
 
@@ -58,40 +58,40 @@ typedef struct {
 /*
  * Values for the width of the chip
  */
-#define FLASH_CFI_BY8		0x01
-#define FLASH_CFI_BY16		0x02
-#define FLASH_CFI_BY32		0x04
-#define FLASH_CFI_BY64		0x08
+#define FLASH_CFI_BY8   0x01
+#define FLASH_CFI_BY16  0x02
+#define FLASH_CFI_BY32  0x04
+#define FLASH_CFI_BY64  0x08
 /* convert between bit value and numeric value */
 #define CFI_FLASH_SHIFT_WIDTH	3
 /*
  * Values for the flash device interface
  */
-#define FLASH_CFI_X8		0x00
-#define FLASH_CFI_X16		0x01
-#define FLASH_CFI_X8X16		0x02
+#define FLASH_CFI_X8     0x00
+#define FLASH_CFI_X16    0x01
+#define FLASH_CFI_X8X16  0x02
 
 /* convert between bit value and numeric value */
 #define CFI_FLASH_SHIFT_WIDTH	3
 /* Prototypes */
 
-extern unsigned long flash_init (void);
-extern void flash_print_info (flash_info_t *);
-extern int flash_erase	(flash_info_t *, int, int);
-extern int flash_sect_erase (ulong addr_first, ulong addr_last);
-extern int flash_sect_protect (int flag, ulong addr_first, ulong addr_last);
+extern unsigned long flash_init(void);
+extern void flash_print_info(flash_info_t *);
+extern int flash_erase(flash_info_t *, int, int);
+extern int flash_sect_erase(ulong addr_first, ulong addr_last);
+extern int flash_sect_protect(int flag, ulong addr_first, ulong addr_last);
 
 /* common/flash.c */
-extern void flash_protect (int flag, ulong from, ulong to, flash_info_t *info);
-extern int flash_write (char *, ulong, ulong);
-extern flash_info_t *addr2info (ulong);
-extern int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt);
+extern void flash_protect(int flag, ulong from, ulong to, flash_info_t *info);
+extern int flash_write(char *, ulong, ulong);
+extern flash_info_t *addr2info(ulong);
+extern int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt);
 
 /* board/?/flash.c */
 #if defined(CFG_FLASH_PROTECTION)
 extern int flash_real_protect(flash_info_t *info, long sector, int prot);
-extern void flash_read_user_serial(flash_info_t * info, void * buffer, int offset, int len);
-extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int offset, int len);
+extern void flash_read_user_serial(flash_info_t *info, void * buffer, int offset, int len);
+extern void flash_read_factory_serial(flash_info_t *info, void * buffer, int offset, int len);
 #endif	/* CFG_FLASH_PROTECTION */
 
 /*-----------------------------------------------------------------------
@@ -117,18 +117,19 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
  * Device IDs
  */
 
-#define AMD_MANUFACT	0x00010001	/* AMD	   manuf. ID in D23..D16, D7..D0 */
-#define FUJ_MANUFACT	0x00040004	/* FUJITSU manuf. ID in D23..D16, D7..D0 */
-#define ATM_MANUFACT	0x001F001F	/* ATMEL */
-#define STM_MANUFACT	0x00200020	/* STM (Thomson) manuf. ID in D23.. -"- */
-#define SST_MANUFACT	0x00BF00BF	/* SST	   manuf. ID in D23..D16, D7..D0 */
-#define MT_MANUFACT	0x00890089	/* MT	   manuf. ID in D23..D16, D7..D0 */
-#define INTEL_MANUFACT	0x00890089	/* INTEL   manuf. ID in D23..D16, D7..D0 */
-#define INTEL_ALT_MANU	0x00B000B0	/* alternate INTEL namufacturer ID	*/
-#define MX_MANUFACT	0x00C200C2	/* MXIC	   manuf. ID in D23..D16, D7..D0 */
-#define TOSH_MANUFACT	0x00980098	/* TOSHIBA manuf. ID in D23..D16, D7..D0 */
-#define MT2_MANUFACT	0x002C002C	/* alternate MICRON manufacturer ID*/
-#define EXCEL_MANUFACT	0x004A004A	/* Excel Semiconductor			*/
+#define AMD_MANUFACT	 0x00010001	/* AMD	   manuf. ID in D23..D16, D7..D0 */
+#define FUJ_MANUFACT	 0x00040004	/* FUJITSU manuf. ID in D23..D16, D7..D0 */
+#define ATM_MANUFACT	 0x001F001F	/* ATMEL */
+#define STM_MANUFACT	 0x00200020	/* STM (Thomson) manuf. ID in D23.. -"- */
+#define SST_MANUFACT	 0x00BF00BF	/* SST	   manuf. ID in D23..D16, D7..D0 */
+#define MT_MANUFACT	   0x00890089	/* MT	   manuf. ID in D23..D16, D7..D0 */
+#define INTEL_MANUFACT 0x00890089	/* INTEL   manuf. ID in D23..D16, D7..D0 */
+#define INTEL_ALT_MANU 0x00B000B0	/* alternate INTEL namufacturer ID	*/
+#define MX_MANUFACT	   0x00C200C2	/* MXIC	   manuf. ID in D23..D16, D7..D0 */
+#define TOSH_MANUFACT	 0x00980098	/* TOSHIBA manuf. ID in D23..D16, D7..D0 */
+#define MT2_MANUFACT	 0x002C002C	/* alternate MICRON manufacturer ID*/
+#define EXCEL_MANUFACT 0x004A004A	/* Excel Semiconductor			*/
+#define EON_MANUFACT   0x007F007F	/* Excel Semiconductor			*/
 
 					/* Micron Technologies (INTEL compat.)	*/
 #define MT_ID_28F400_T	0x44704470	/* 28F400B3 ID ( 4 M, top boot sector)	*/
@@ -234,6 +235,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define SST_ID_xF6401	0x236B236B	/* 39xF6401 ID (64M =	4M x 16 )	*/
 #define SST_ID_xF6402	0x236A236A	/* 39xF6402 ID (64M =	4M x 16 )	*/
 #define SST_ID_xF040	0xBFD7BFD7	/* 39xF040 ID (512KB = 4Mbit x 8)	*/
+#define SST_ID_49LF004B 0X60
 
 #define STM_ID_F040B	0xE2		/* M29F040B ID ( 4M = 512K x 8	)	*/
 					/* 8 64K x 8 uniform sectors		*/
@@ -286,6 +288,14 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define TOSH_ID_FVT160	0xC2		/* TC58FVT160 ID (16 M, top )		*/
 #define TOSH_ID_FVB160	0x43		/* TC58FVT160 ID (16 M, bottom )	*/
 
+#define EON_ID_LV640U   0x22D722D7
+#define EON_ID_LV640T   0x22C922C9
+#define EON_ID_LV640H   0x227E227E
+#define EON_ID_LV640B   0x22CB22CB
+
+/*#define MX_ID_LV640B   0x22CB22CB*/
+/*#define MX_ID_LV640T   0x22C922C9*/
+
 /*-----------------------------------------------------------------------
  * Internal FLASH identification codes
  *
@@ -335,6 +345,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_SST320	0x0048		/* SST 39xF160A ID ( 16M =   1M x 16 )	*/
 #define FLASH_SST640	0x004A		/* SST 39xF160A ID ( 16M =   1M x 16 )	*/
 #define FLASH_SST040	0x000E		/* SST 39xF040 ID (512KB = 4Mbit x 8 )	*/
+#define FLASH_49LF004B 0X0060           /* 512 KB*/
 
 #define FLASH_STM800AB	0x0051		/* STM M29WF800AB  (  8M = 512K x 16 )	*/
 #define FLASH_STMW320DT 0x0052		/* STM M29W320DT   (32 M, top boot sector)	*/
@@ -405,11 +416,17 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_FUJLV650	0x00D0		/* Fujitsu MBM 29LV650UE/651UE		*/
 #define FLASH_MT28S4M16LC 0x00E1	/* Micron MT28S4M16LC			*/
 #define FLASH_S29GL064M 0x00F0		/* Spansion S29GL064M-R6		*/
+#define FLASH_EON29LV640U  0x00f1
+#define FLASH_EON29LV640H  0x00f2
+#define FLASH_EON29LV640B  0x00f3
+#define FLASH_MX29LV640B  0x00f4
+#define FLASH_MX29LV640T  0x00f5
 
-#define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
 
+#define FLASH_UNKNOWN	0xFFFFFFFF	/* unknown flash type			*/
 
-/* manufacturer offsets
+/*
+ *  manufacturer offsets
  */
 #define FLASH_MAN_AMD	0x00000000	/* AMD					*/
 #define FLASH_MAN_FUJ	0x00010000	/* Fujitsu				*/
@@ -423,7 +440,7 @@ extern void flash_read_factory_serial(flash_info_t * info, void * buffer, int of
 #define FLASH_MAN_MT	0x00400000
 #define FLASH_MAN_SHARP 0x00500000
 #define FLASH_MAN_ATM	0x00600000
-
+#define FLASH_MAN_EON   0X00700000
 
 #define FLASH_TYPEMASK	0x0000FFFF	/* extract FLASH type	information	*/
 #define FLASH_VENDMASK	0xFFFF0000	/* extract FLASH vendor information	*/

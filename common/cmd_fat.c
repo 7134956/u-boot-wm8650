@@ -29,6 +29,7 @@
 #include <s_record.h>
 #include <net.h>
 #include <ata.h>
+#include "../fs/mem/mem.h"
 
 #if (CONFIG_COMMANDS & CFG_CMD_FAT)
 
@@ -36,6 +37,7 @@
 
 #include <fat.h>
 
+extern block_dev_desc_t block_mem_fat;
 
 block_dev_desc_t *get_dev (char* ifname, int dev)
 {
@@ -69,6 +71,12 @@ block_dev_desc_t *get_dev (char* ifname, int dev)
 		return(systemace_get_dev(dev));
 	}
 #endif
+
+#if defined(CONFIG_MEM)
+	if (strcmp(ifname,"mem")==0) {
+		return &block_mem_fat;
+	}
+#endif	
 	return NULL;
 }
 
@@ -132,6 +140,65 @@ U_BOOT_CMD(
 	"<interface> <dev[:part]>  <addr> <filename> [bytes]\n"
 	"    - load binary file 'filename' from 'dev' on 'interface'\n"
 	"      to address 'addr' from dos filesystem\n"
+);
+
+int do_fat_fsstore (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	long size;
+	unsigned long offset;
+	unsigned long count;
+	char buf [12];
+	block_dev_desc_t *dev_desc=NULL;
+	int dev=0;
+	int part=1;
+	char *ep;
+
+	if (argc < 6) {
+		printf ("usage: fatstore <interface> <dev[:part]> <addr> <filename> <bytes>\n");
+		return 1;
+	}
+	dev = (int)simple_strtoul (argv[2], &ep, 16);
+	dev_desc=get_dev(argv[1],dev);
+	if (dev_desc==NULL) {
+		puts ("\n** Invalid boot device **\n");
+		return 1;
+	}
+	if (*ep) {
+		if (*ep != ':') {
+			puts ("\n** Invalid boot device, use `dev[:part]' **\n");
+			return 1;
+		}
+		part = (int)simple_strtoul(++ep, NULL, 16);
+	}
+	if (fat_register_device(dev_desc,part)!=0) {
+		printf ("\n** Unable to use %s %d:%d for fatstore **\n",argv[1],dev,part);
+		return 1;
+	}
+	offset = simple_strtoul (argv[3], NULL, 16);
+	count = simple_strtoul (argv[5], NULL, 16);
+	//size = file_fat_read (argv[4], (unsigned char *) offset, count);
+	size = file_fat_write (argv[4], (unsigned char *) offset, count);
+
+	if(size==-1) {
+		printf("\n** Unable to write \"%s\" to %s %d:%d **\n",argv[4],argv[1],dev,part);
+		return 1;
+	}
+
+	printf ("\n%ld bytes written\n", size);
+
+	sprintf(buf, "%lX", size);
+	setenv("filesize", buf);
+
+	return 0;
+}
+
+
+U_BOOT_CMD(
+	fatstore,	6,	0,	do_fat_fsstore ,
+	"fatstore - store binary file to a dos filesystem\n",
+	"<interface> <dev[:part]>  <addr> <filename> <bytes>\n"
+	"    - store binary file 'filename' to 'dev' on 'interface'\n"
+	"      from address 'addr' from dos filesystem\n"
 );
 
 int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])

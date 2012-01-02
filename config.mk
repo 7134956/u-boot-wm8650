@@ -5,20 +5,20 @@
 # See file CREDITS for list of people who contributed to this
 # project.
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
+# Some descriptions of such software. Copyright (c) 2008 WonderMedia Technologies, Inc.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# This program is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software Foundation,
+# either version 2 of the License, or (at your option) any later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with
+# this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# WonderMedia Technologies, Inc.
+# 10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
 #
 
 #########################################################################
@@ -108,7 +108,8 @@ OBJDUMP = $(CROSS_COMPILE)objdump
 RANLIB	= $(CROSS_COMPILE)RANLIB
 
 RELFLAGS= $(PLATFORM_RELFLAGS)
-DBGFLAGS= -g #-DDEBUG
+#DBGFLAGS= -g #-DDEBUG
+DBGFLAGS= -g -DDEBUG
 OPTFLAGS= -Os #-fomit-frame-pointer
 ifndef LDSCRIPT
 #LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
@@ -139,7 +140,8 @@ CFLAGS := $(CPPFLAGS) -Wall -Wno-trigraphs
 endif
 endif
 
-AFLAGS_DEBUG := -Wa,-gstabs
+#AFLAGS_DEBUG := -Wa,-gstabs
+AFLAGS_DEBUG := -Wa,-gdwarf2
 AFLAGS := $(AFLAGS_DEBUG) -D__ASSEMBLY__ $(CPPFLAGS)
 
 LDFLAGS += -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
@@ -169,6 +171,14 @@ endif
 
 ifeq ($(PCI_CLOCK),PCI_66M)
 CFLAGS := $(CFLAGS) -DPCI_66M
+endif
+
+ifeq ($(VEERELOAD),1)
+CFLAGS += -DVEERELOAD
+endif
+
+ifeq ($(CFG_NAND_BOOT),1)
+CFLAGS += -DCFG_NAND_BOOT
 endif
 
 #########################################################################

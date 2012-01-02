@@ -1,3 +1,19 @@
+/*++ 
+Copyright (c) 2010 WonderMedia Technologies, Inc.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software 
+Foundation, either version 2 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details. You
+should have received a copy of the GNU General Public License along with this
+program. If not, see http://www.gnu.org/licenses/>.
+
+WonderMedia Technologies, Inc.
+10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
+--*/
 /*
  * (C) Copyright 2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -28,6 +44,8 @@
 #include <command.h>
 #include <devices.h>
 #include <net.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static char input_buffer[512];
 static int input_size = 0;		/* char count in input buffer */
@@ -105,8 +123,6 @@ int nc_input_packet (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 
 static void nc_send_packet (const char *buf, int len)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	struct eth_device *eth;
 	int inited = 0;
 	uchar *pkt;

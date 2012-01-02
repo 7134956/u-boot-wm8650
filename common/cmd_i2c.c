@@ -128,7 +128,7 @@ int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	addr   = i2c_dp_last_addr;
 	alen   = i2c_dp_last_alen;
 	length = i2c_dp_last_length;
-
+	
 	if (argc < 3) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -315,6 +315,68 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 
+/* Write (fill) i2c device register from memory
+ *
+ * Syntax:
+ *	imw {i2c_chip} {addr}{.0, .1, .2} {data} [{count}]
+ */
+int do_i2c_reg_set(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	uchar	chip;
+	ulong	addr;
+	uint	alen;
+	/*uchar	byte;*/
+	int	count;
+	int	j;
+	uint	mem_addr;
+
+	if ((argc < 4) || (argc > 5)) {
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+	/*
+ 	 * Chip is always specified.
+ 	 */
+	chip = simple_strtoul(argv[1], NULL, 16);
+
+	/*
+	 * Address is always specified.
+	 */
+	addr = simple_strtoul(argv[2], NULL, 16);
+	alen = 1;
+	for(j = 0; j < 8; j++) {
+		if (argv[2][j] == '.') {
+			alen = argv[2][j+1] - '0';
+			if(alen > 4) {
+				printf ("Usage:\n%s\n", cmdtp->usage);
+				return 1;
+			}
+			break;
+		} else if (argv[2][j] == '\0') {
+			break;
+		}
+	}
+
+	/*
+	 * Value to write is always specified.
+	 */
+	/*byte = simple_strtoul(argv[3], NULL, 16);*/
+	mem_addr = simple_strtoul(argv[3], NULL, 16);
+
+	/*
+	 * Optional count
+	 */
+	if (argc == 5)
+		count = simple_strtoul(argv[4], NULL, 16);
+	else
+		count = 1;
+
+	if(i2c_write(chip, addr, alen, (uchar *)mem_addr, count) != 0)
+		puts ("Error writing the chip.\n");
+
+	return 0;
+}
 /* Calculate a CRC on memory
  *
  * Syntax:
@@ -920,6 +982,12 @@ U_BOOT_CMD(
 	"iloop   - infinite loop on address range\n",
 	"chip address[.0, .1, .2] [# of objects]\n"
 	"    - loop, reading a set of addresses\n"
+);
+
+U_BOOT_CMD(
+	ims,	5,	1,	do_i2c_reg_set,
+	"ims  - set i2c device context from memory\n",
+	"chip address[.0, .1, .2] memory address [count]\n    - device context setting\n"
 );
 
 #if (CONFIG_COMMANDS & CFG_CMD_SDRAM)

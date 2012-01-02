@@ -1,3 +1,19 @@
+/*++ 
+Copyright (c) 2010 WonderMedia Technologies, Inc.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software 
+Foundation, either version 2 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details. You
+should have received a copy of the GNU General Public License along with this
+program. If not, see http://www.gnu.org/licenses/>.
+
+WonderMedia Technologies, Inc.
+10F, 529, Chung-Cheng Road, Hsin-Tien, Taipei 231, R.O.C.
+--*/
 /*
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -32,14 +48,14 @@
 
 #ifdef CONFIG_POST
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define POST_MAX_NUMBER		32
 
 #define BOOTMODE_MAGIC	0xDEAD0000
 
 int post_init_f (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	int res = 0;
 	unsigned int i;
 
@@ -62,7 +78,6 @@ int post_init_f (void)
 
 void post_bootmode_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int bootmode = post_bootmode_get (0);
 	int newword;
 
@@ -110,20 +125,17 @@ int post_bootmode_get (unsigned int *last_test)
 /* POST tests run before relocation only mark status bits .... */
 static void post_log_mark_start ( unsigned long testid )
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	gd->post_log_word |= (testid)<<16;
 }
 
 static void post_log_mark_succ ( unsigned long testid )
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	gd->post_log_word |= testid;
 }
 
 /* ... and the messages are output once we are relocated */
 void post_output_backlog ( void )
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	int j;
 
 	for (j = 0; j < post_list_size; j++) {
@@ -379,8 +391,6 @@ int post_log (char *format, ...)
 
 void post_reloc (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	unsigned int i;
 
 	/*

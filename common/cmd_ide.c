@@ -25,6 +25,7 @@
 /*
  * IDE support
  */
+ #undef	DEBUG
 #include <common.h>
 #include <config.h>
 #include <watchdog.h>
@@ -69,7 +70,47 @@ unsigned long mips_io_port_base = 0;
 #endif
 
 #if (CONFIG_COMMANDS & CFG_CMD_IDE)
+#ifndef inb
+#define inb(p)	     (*(volatile u8*)(p))
+#endif
 
+#ifndef outb
+#define outb(val,p)  (*(volatile u8*)(p) = (val))
+#endif
+
+#ifndef inw
+#define inw(p)	     (*(volatile u16*)(p))
+#endif
+
+#ifndef outw
+#define outw(val,p)  (*(volatile u16*)(p) = (val))
+#endif
+#ifndef insw
+#define insw(p,to,len)	   mmio_insw(p,to,len)
+#endif
+
+#ifndef outsw
+#define outsw(p,from,len)  mmio_outsw(p,from,len)
+#endif
+#ifndef mmio_insw
+#define mmio_insw(r,b,l)	({	int __i ;  \
+					u16 *__b2;  \
+					__b2 = (u16 *) b;  \
+					for (__i = 0; __i < l; __i++) {	 \
+					  *(__b2 + __i) = inw(r);  \
+					};  \
+				})
+#endif
+
+#ifndef mmio_outsw
+#define mmio_outsw(r,b,l)	({	int __i; \
+					u16 *__b2; \
+					__b2 = (u16 *) b; \
+					for (__i = 0; __i < l; __i++) { \
+					    outw( *(__b2 + __i), r); \
+					} \
+				})
+#endif
 #ifdef CONFIG_IDE_8xx_DIRECT
 /* Timings for IDE Interface
  *
@@ -562,7 +603,7 @@ void ide_init (void)
 	/* Reset the IDE just to be sure.
 	 * Light LED's to show
 	 */
-	ide_led ((LED_IDE1 | LED_IDE2), 1);		/* LED's on	*/
+//	ide_led ((LED_IDE1 | LED_IDE2), 1);		/* LED's on	*/
 	ide_reset (); /* ATAPI Drives seems to need a proper IDE Reset */
 
 #ifdef CONFIG_IDE_8xx_DIRECT
@@ -1127,8 +1168,8 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	 * 6.2.1.6: Identfy Drive, Table 39 for more details
 	 */
 
-	strswab (dev_desc->revision);
-	strswab (dev_desc->vendor);
+	strswab((char *)dev_desc->revision);
+	strswab((char *)dev_desc->vendor);
 #endif /* __LITTLE_ENDIAN */
 
 	if ((iop->config & 0x0080)==0x0080)

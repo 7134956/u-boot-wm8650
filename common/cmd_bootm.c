@@ -38,6 +38,8 @@
 #include <ft_build.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
  /*cmd_boot.c*/
  extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
@@ -463,7 +465,6 @@ U_BOOT_CMD(
 static void
 fixup_silent_linux ()
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	char buf[256], *start, *end;
 	char *cmdline = getenv ("bootargs");
 
@@ -506,8 +507,6 @@ do_bootm_linux (cmd_tbl_t *cmdtp, int flag,
 		ulong	*len_ptr,
 		int	verify)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	ulong	sp;
 	ulong	len, checksum;
 	ulong	initrd_start, initrd_end;
@@ -846,8 +845,6 @@ do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 		ulong	*len_ptr,
 		int	verify)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	image_header_t *hdr = &header;
 
 	void	(*loader)(bd_t *, image_header_t *, char *, char *);
@@ -931,7 +928,6 @@ do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 		ulong	*len_ptr,
 		int	verify)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	ulong top;
 	char *s, *cmdline;
 	char **fwenv, **ss;
@@ -1360,7 +1356,6 @@ static void
 do_bootm_rtems (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		ulong addr, ulong *len_ptr, int verify)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	image_header_t *hdr = &header;
 	void	(*entry_point)(bd_t *);
 
